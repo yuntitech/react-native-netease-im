@@ -32,6 +32,7 @@ import com.netease.im.contact.FriendObserver;
 import com.netease.im.login.LoginService;
 import com.netease.im.login.RecentContactObserver;
 import com.netease.im.login.SysMessageObserver;
+import com.netease.im.rtskit.Preferences;
 import com.netease.im.rtskit.RTSModule;
 import com.netease.im.session.AudioMessageService;
 import com.netease.im.session.AudioPlayService;
@@ -166,6 +167,8 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
             public void onSuccess(LoginInfo loginInfo) {
 
                 promise.resolve(loginInfo == null ? "" : loginInfo.getAccount());
+                Preferences.saveUserAccount(loginInfo.getAccount());
+                Preferences.saveUserToken(loginInfo.getToken());
             }
 
             @Override
@@ -2139,6 +2142,16 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
     @ReactMethod
     public void sendBoardCommand(ReadableMap params) {
         mRTSModule.sendBoardCommand(params, getReactApplicationContext());
+    }
+
+    @ReactMethod
+    public void store(String key, String value) {
+        Preferences.saveString(key, value);
+    }
+
+    @ReactMethod
+    public void restore(String key, Promise promise) {
+        promise.resolve(Preferences.getString(key));
     }
 
     @Override

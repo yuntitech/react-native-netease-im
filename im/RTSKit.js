@@ -4,9 +4,9 @@
  * @Last Modified by: kangqiang
  * @Last Modified time: 2020/5/3 3:02 下午
  */
-import { NativeModules } from 'react-native';
+import {NativeModules} from 'react-native';
 
-const { RNNeteaseIm } = NativeModules;
+const {RNNeteaseIm} = NativeModules;
 
 export type RTSData = {
   sessionId: string, //会话ID
@@ -130,6 +130,14 @@ class RTSKit {
    */
   sendBoardCommand(data: RtsCommandData) {
     RNNeteaseIm.sendBoardCommand(data);
+  }
+
+  store(key: string, value: string) {
+    RNNeteaseIm.store(key, value);
+  }
+
+  restore(key: string): Promise<string> {
+    return RNNeteaseIm.restore(key);
   }
 }
 
