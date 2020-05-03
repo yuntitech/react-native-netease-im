@@ -9,35 +9,19 @@ import android.util.Log;
 public class LogUtil {
 
     public static void ui(String msg) {
-        if (RTSKit.getiLogUtil() == null) {
-            Log.i("ui", msg);
-        } else {
-            RTSKit.getiLogUtil().ui(msg);
-        }
+        Log.i("ui", msg);
     }
 
     public static void e(String tag, String msg) {
-        if (RTSKit.getiLogUtil() == null) {
-            Log.e(tag, msg);
-        } else {
-            RTSKit.getiLogUtil().e(tag, msg);
-        }
+        Log.e(tag, msg);
     }
 
     public static void i(String tag, String msg) {
-        if (RTSKit.getiLogUtil() == null) {
-            Log.i(tag, msg);
-        } else {
-            RTSKit.getiLogUtil().i(tag, msg);
-        }
+        Log.i(tag, msg);
     }
 
     public static void d(String tag, String msg) {
-        if (RTSKit.getiLogUtil() == null) {
-            Log.d(tag, msg);
-        } else {
-            RTSKit.getiLogUtil().d(tag, msg);
-        }
+        Log.d(tag, msg);
     }
 
     public static void log(String format, Object... args) {

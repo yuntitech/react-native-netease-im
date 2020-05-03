@@ -28,7 +28,6 @@ public class ScreenUtil {
     public static int navbarheight;
 
     static {
-        init(RTSKit.getContext());
     }
 
     public static int dip2px(float dipValue) {
@@ -67,14 +66,12 @@ public class ScreenUtil {
 
     public static int getDisplayWidth() {
         if (screenWidth == 0) {
-            GetInfo(RTSKit.getContext());
         }
         return screenWidth;
     }
 
     public static int getDisplayHeight() {
         if (screenHeight == 0) {
-            GetInfo(RTSKit.getContext());
         }
         return screenHeight;
     }

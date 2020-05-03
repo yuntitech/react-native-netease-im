@@ -3,7 +3,7 @@ package com.netease.im.rtskit;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.netease.im.ReactCache;
+import com.netease.im.IMApplication;
 
 /**
  * Created by hzxuwen on 2015/4/13.
@@ -48,6 +48,6 @@ public class Preferences {
     }
 
     static SharedPreferences getSharedPreferences() {
-        return ReactCache.getReactContext().getSharedPreferences("NimRTS", Context.MODE_PRIVATE);
+        return IMApplication.getContext().getSharedPreferences("NimRTS", Context.MODE_PRIVATE);
     }
 }

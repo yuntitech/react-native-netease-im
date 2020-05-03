@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.netease.im.rtskit.common.log.LogUtil;
-import com.netease.nim.util.Util;
+import com.netease.im.rtskit.util.Util;
 import com.netease.nimlib.sdk.rts.RTSManager;
 import com.netease.nimlib.sdk.rts.model.RTSTunData;
 
@@ -36,7 +36,6 @@ public class TransactionCenter {
     String externalDirectory;
 
     private TransactionCenter() {
-        this.externalDirectory = DemoCache.getContext().getExternalFilesDir(null).getAbsolutePath();
     }
 
     public static TransactionCenter getInstance() {
