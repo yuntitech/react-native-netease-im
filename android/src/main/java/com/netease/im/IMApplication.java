@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.DrawableRes;
+
 import com.netease.im.common.ImageLoaderKit;
 import com.netease.im.common.sys.SystemUtil;
 import com.netease.im.contact.DefalutUserInfoProvider;
@@ -33,7 +35,6 @@ import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.mixpush.MixPushConfig;
 import com.netease.nimlib.sdk.mixpush.MixPushService;
-import com.netease.nimlib.sdk.mixpush.NIMPushClient;
 import com.netease.nimlib.sdk.msg.MessageNotifierCustomization;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
@@ -42,8 +43,6 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.RevokeMsgNotification;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import com.netease.nimlib.sdk.util.NIMUtil;
-
-import androidx.annotation.DrawableRes;
 
 
 /**
@@ -101,7 +100,6 @@ public class IMApplication {
             }
             // 初始化Kit模块
             initKit();
-
         }
 
     }
@@ -182,7 +180,7 @@ public class IMApplication {
 
 
         // 推送配置
-        if(miPushConfig!=null) {
+        if (miPushConfig != null) {
             MixPushConfig pushConfig = new MixPushConfig();
             pushConfig.xmAppId = miPushConfig.xmAppId;
             pushConfig.xmAppKey = miPushConfig.xmAppKey;
@@ -245,6 +243,7 @@ public class IMApplication {
         public String makeTicker(String nick, IMMessage message) {
             return null; // 采用SDK默认文案
         }
+
         @Override
         public String makeRevokeMsgTip(String revokeAccount, IMMessage item) {
             return MessageUtil.getRevokeTipContent(item, revokeAccount);

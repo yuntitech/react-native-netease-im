@@ -9,22 +9,22 @@ import {NativeModules} from 'react-native';
 const {RNNeteaseIm} = NativeModules;
 
 export type RTSData = {
-  sessionId: string, //会话ID
-  account: string, //对方账号
-  channelId: string, //数据通道
+  sessionId: string; //会话ID
+  account: string; //对方账号
+  channelId: number; //数据通道
 };
 
 export type RtsCommandData = {
-  roleType?: number, //角色
-  currentBoardId?: number,
-  type: number, //指令类型
-  id?: number, //白板id
-  url?: string, //链接
-  paintColorType?: number, //画笔颜色类型
-  pptIndex?: number, //课件页码
-  seekTo?: number, //视频seek值
-  startLessonTime?: number, //上课开始时间
-  startLessonPrice?: number, //上课开始价格
+  roleType?: number; //角色
+  currentBoardId?: number;
+  type: number; //指令类型
+  id?: number; //白板id
+  url?: string; //链接
+  paintColorType?: number; //画笔颜色类型
+  pptIndex?: number; //课件页码
+  seekTo?: number; //视频seek值
+  startLessonTime?: number; //上课开始时间
+  startLessonPrice?: number; //上课开始价格
 };
 
 const baseType: number = 14;
@@ -67,8 +67,7 @@ class RTSKit {
    * @param promise 返回RTSData
    */
   startNimSession(account: string): Promise<RTSData> {
-    return;
-    return RNNeteaseIm.startNimSession(register);
+    return RNNeteaseIm.startNimSession(account);
   }
 
   /**
@@ -86,8 +85,8 @@ class RTSKit {
    *
    * @param register  注册/注销
    */
-  registerInComingObserver(register: boolean) {
-    RNNeteaseIm.registerInComingObserver(register);
+  registerInComingObserver(register: boolean, sessionId?: string) {
+    RNNeteaseIm.registerInComingObserver(sessionId, register);
   }
 
   /**

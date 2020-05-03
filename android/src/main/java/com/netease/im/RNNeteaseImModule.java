@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -44,6 +45,7 @@ import com.netease.im.uikit.cache.NimUserInfoCache;
 import com.netease.im.uikit.cache.SimpleCallback;
 import com.netease.im.uikit.cache.TeamDataCache;
 import com.netease.im.uikit.common.util.log.LogUtil;
+import com.netease.im.uikit.common.util.string.MD5;
 import com.netease.im.uikit.common.util.sys.NetworkUtil;
 import com.netease.im.uikit.contact.core.model.ContactDataList;
 import com.netease.im.uikit.permission.MPermission;

@@ -19,5 +19,6 @@ import NimRTSKit from './im/RTSKit';
  *observeDeleteMessage 撤销后删除消息
  *observeAttachmentProgress 未读数变化
  *observeOnKick 被踢出下线
+ *observeIncomingSession 注册白板来电观察者
  */
 export {NimUtils, NimFriend, NimSession, NimSystemMsg, NimTeam, NimRTSKit};
