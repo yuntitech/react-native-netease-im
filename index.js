@@ -3,6 +3,7 @@ import NimFriend from './im/Friend';
 import NimSession from './im/Session';
 import NimSystemMsg from './im/SystemMsg';
 import NimTeam from './im/Team';
+import NimRTSKit from './im/RTSKit';
 /**
  *监听列表
  *observeRecentContact 最近会话
@@ -19,4 +20,4 @@ import NimTeam from './im/Team';
  *observeAttachmentProgress 未读数变化
  *observeOnKick 被踢出下线
  */
-export {NimUtils, NimFriend, NimSession, NimSystemMsg, NimTeam};
+export {NimUtils, NimFriend, NimSession, NimSystemMsg, NimTeam, NimRTSKit};

@@ -32,6 +32,7 @@ import com.netease.im.contact.FriendObserver;
 import com.netease.im.login.LoginService;
 import com.netease.im.login.RecentContactObserver;
 import com.netease.im.login.SysMessageObserver;
+import com.netease.im.rtskit.RTSModule;
 import com.netease.im.session.AudioMessageService;
 import com.netease.im.session.AudioPlayService;
 import com.netease.im.session.SessionService;
@@ -50,6 +51,7 @@ import com.netease.im.uikit.permission.annotation.OnMPermissionGranted;
 import com.netease.im.uikit.permission.annotation.OnMPermissionNeverAskAgain;
 import com.netease.im.uikit.session.helper.MessageHelper;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.ResponseCode;
@@ -69,6 +71,9 @@ import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
 import com.netease.nimlib.sdk.msg.model.SystemMessage;
 import com.netease.nimlib.sdk.nos.NosService;
+import com.netease.nimlib.sdk.rts.RTSCallback;
+import com.netease.nimlib.sdk.rts.RTSManager;
+import com.netease.nimlib.sdk.rts.model.RTSData;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
@@ -105,6 +110,7 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
     FriendListService friendListService;
     FriendObserver friendObserver;
     private Handler handler = new Handler(Looper.getMainLooper());
+    private RTSModule mRTSModule;
 
     public RNNeteaseImModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -121,6 +127,7 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
     @Override
     public void initialize() {
         LogUtil.w(TAG, "initialize");
+        mRTSModule = new RTSModule(reactContext);
     }
 
     @Override
@@ -2025,6 +2032,115 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
         promise.resolve(networkString);
     }
 
+    /********** 白板 **************/
+
+    /**
+     * 注册/注销监听收到的会话请求
+     *
+     * @param register 注册/注销
+     */
+    @ReactMethod
+    public void registerRTSIncomingObserver(boolean register) {
+        RTSManager.getInstance().observeIncomingSession(new Observer<RTSData>() {
+            @Override
+            public void onEvent(RTSData rtsData) {
+                ReactCache.emit(ReactCache.observeIncomingSession, ReactCache.createNimData(rtsData));
+            }
+        }, register);
+    }
+
+    /**
+     * (发送方)发起会话， 调用此接口对方会收到相应的会话请求通知
+     *
+     * @param account 对方帐号
+     * @param promise 返回RTSData
+     */
+    @ReactMethod
+    public void startNimSession(String account, final Promise promise) {
+        mRTSModule.startSession(account, new RTSCallback<RTSData>() {
+
+            @Override
+            public void onSuccess(RTSData rtsData) {
+                promise.resolve(ReactCache.createNimData(rtsData));
+            }
+
+            @Override
+            public void onFailed(int code) {
+                promise.reject(String.valueOf(code), code == 11001 ? "无可送达的被叫方" : "发起会话失败");
+            }
+
+            @Override
+            public void onException(Throwable exception) {
+                promise.reject(exception);
+            }
+        });
+    }
+
+    /**
+     * 注册/注销发起会话后，被叫方的响应（接听、拒绝、忙）
+     *
+     * @param register 注册/注销
+     */
+    @ReactMethod
+    public void registerOutgoingObserver(boolean register) {
+        mRTSModule.registerOutgoingObserver(register);
+    }
+
+    /**
+     * 注册/注销同时在线的其他端对主叫方的响应
+     *
+     * @param sessionId 会话ID
+     * @param register  注册/注销
+     */
+    @ReactMethod
+    public void registerInComingObserver(String sessionId, boolean register) {
+        mRTSModule.registerInComingObserver(register, sessionId);
+    }
+
+    /**
+     * 注册/注销通道状态变化的通知
+     * 注册/注销会话对方挂断的通知
+     * 注册/注销到来的会话或者自己发起的会话（自己或者对方无响应）超时的通知，默认超时时间为40秒
+     * 注册/注销会话控制消息
+     *
+     * @param register 注册/注销
+     */
+    @ReactMethod
+    public void registerCommonObserver(boolean register) {
+        mRTSModule.registerCommonObserver(register);
+    }
+
+    /**
+     * (接收方)接受会话
+     *
+     * @param account 对方帐号
+     * @param promise 返回本地通道初始化是否成功
+     */
+    @ReactMethod
+    public void acceptNimSession(String account, Promise promise) {
+        mRTSModule.acceptNimSession(account, promise);
+    }
+
+    /**
+     * (接受方)拒绝会话或者结束会话
+     *
+     * @param promise 是否成功调用
+     */
+    @ReactMethod
+    public void endNimSession(Promise promise) {
+        mRTSModule.endNimSession(promise);
+    }
+
+    /**
+     * 发送白板指令
+     *
+     * @param params ActionStep与所需参数
+     */
+    @ReactMethod
+    public void sendBoardCommand(ReadableMap params) {
+        mRTSModule.sendBoardCommand(params, getReactApplicationContext());
+    }
+
     @Override
     public void onHostResume() {
 
@@ -2055,4 +2171,5 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
     public void onHostDestroy() {
         LogUtil.w(TAG, "onHostDestroy");
     }
+
 }
