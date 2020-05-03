@@ -50,6 +50,7 @@ import com.netease.nimlib.sdk.msg.model.AttachmentProgress;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
 import com.netease.nimlib.sdk.msg.model.SystemMessage;
+import com.netease.nimlib.sdk.rts.model.RTSData;
 import com.netease.nimlib.sdk.team.constant.TeamMessageNotifyTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
@@ -86,6 +87,7 @@ public class ReactCache {
     public final static String observeAccountNotice = "observeAccountNotice";//'账户变动通知'
     public final static String observeLaunchPushEvent = "observeLaunchPushEvent";//''
     public final static String observeBackgroundPushEvent = "observeBackgroundPushEvent";//''
+    public final static String observeIncomingSession = "observeIncomingSession";//注册白板来电观察者
 
     final static String TAG = "ReactCache";
     private static ReactContext reactContext;
@@ -1064,5 +1066,13 @@ public class ReactCache {
         result.putString("transferred", Long.toString(attachmentProgress.getTransferred()));
 
         return result;
+    }
+
+    public static WritableMap createRTSData(RTSData rtsData) {
+        WritableMap data = Arguments.createMap();
+        data.putString("sessionId", rtsData.getLocalSessionId());
+        data.putString("account", rtsData.getAccount());
+        data.putDouble("channelId", rtsData.getChannelId());
+        return data;
     }
 }

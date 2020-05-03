@@ -2044,7 +2044,7 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
         RTSManager.getInstance().observeIncomingSession(new Observer<RTSData>() {
             @Override
             public void onEvent(RTSData rtsData) {
-                ReactCache.emit(ReactCache.observeIncomingSession, ReactCache.createNimData(rtsData));
+                ReactCache.emit(ReactCache.observeIncomingSession, ReactCache.createRTSData(rtsData));
             }
         }, register);
     }
@@ -2061,7 +2061,7 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
 
             @Override
             public void onSuccess(RTSData rtsData) {
-                promise.resolve(ReactCache.createNimData(rtsData));
+                promise.resolve(ReactCache.createRTSData(rtsData));
             }
 
             @Override
