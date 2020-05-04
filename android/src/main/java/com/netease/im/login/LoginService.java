@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 
 import com.netease.im.IMApplication;
 import com.netease.im.ReactCache;
-import com.netease.im.rtskit.Preferences;
 import com.netease.im.session.SessionUtil;
 import com.netease.im.team.TeamListService;
 import com.netease.im.uikit.LoginSyncDataStatusObserver;
@@ -64,13 +63,7 @@ public class LoginService {
     }
 
     public LoginInfo getLoginInfo(Context context) {
-        String userAccount = Preferences.getUserAccount();
-        String userToken = Preferences.getUserToken();
-        if (userAccount != null) {
-            return new LoginInfo(userAccount, userToken);
-        }
-        LoginInfo info = new LoginInfo(account, token);
-        return info;
+        return new LoginInfo(account, token);
     }
 
     void initLogin(LoginInfo loginInfo) {

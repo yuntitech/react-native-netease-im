@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -33,7 +32,6 @@ import com.netease.im.contact.FriendObserver;
 import com.netease.im.login.LoginService;
 import com.netease.im.login.RecentContactObserver;
 import com.netease.im.login.SysMessageObserver;
-import com.netease.im.rtskit.Preferences;
 import com.netease.im.rtskit.RTSModule;
 import com.netease.im.session.AudioMessageService;
 import com.netease.im.session.AudioPlayService;
@@ -45,7 +43,6 @@ import com.netease.im.uikit.cache.NimUserInfoCache;
 import com.netease.im.uikit.cache.SimpleCallback;
 import com.netease.im.uikit.cache.TeamDataCache;
 import com.netease.im.uikit.common.util.log.LogUtil;
-import com.netease.im.uikit.common.util.string.MD5;
 import com.netease.im.uikit.common.util.sys.NetworkUtil;
 import com.netease.im.uikit.contact.core.model.ContactDataList;
 import com.netease.im.uikit.permission.MPermission;
@@ -131,6 +128,8 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
     public void initialize() {
         LogUtil.w(TAG, "initialize");
         mRTSModule = new RTSModule(reactContext);
+        // 白板会话监听
+        registerRTSIncomingObserver(true);
     }
 
     @Override
@@ -169,8 +168,6 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
             public void onSuccess(LoginInfo loginInfo) {
 
                 promise.resolve(loginInfo == null ? "" : loginInfo.getAccount());
-                Preferences.saveUserAccount(loginInfo.getAccount());
-                Preferences.saveUserToken(loginInfo.getToken());
             }
 
             @Override
@@ -2044,8 +2041,7 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
      *
      * @param register 注册/注销
      */
-    @ReactMethod
-    public void registerRTSIncomingObserver(boolean register) {
+    private void registerRTSIncomingObserver(boolean register) {
         RTSManager.getInstance().observeIncomingSession(new Observer<RTSData>() {
             @Override
             public void onEvent(RTSData rtsData) {
@@ -2144,16 +2140,6 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
     @ReactMethod
     public void sendBoardCommand(ReadableMap params) {
         mRTSModule.sendBoardCommand(params, getReactApplicationContext());
-    }
-
-    @ReactMethod
-    public void store(String key, String value) {
-        Preferences.saveString(key, value);
-    }
-
-    @ReactMethod
-    public void restore(String key, Promise promise) {
-        promise.resolve(Preferences.getString(key));
     }
 
     @Override
