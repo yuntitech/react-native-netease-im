@@ -187,6 +187,7 @@ public class DoodleView extends View implements TransactionObserver {
      */
     public void initTransactionManager(String sessionId, String account, Mode mode, int bgColor) {
         this.transactionManager = TransactionManager.get(sessionId, account, getContext());
+        this.transactionManager.setLoginType(this.loginType);
 
         if (mode == Mode.PLAYBACK || mode == Mode.BOTH) {
             initPlaybackChannel();
@@ -253,9 +254,6 @@ public class DoodleView extends View implements TransactionObserver {
 
     public void setLoginType(byte loginType) {
         this.loginType = loginType;
-        if (transactionManager != null) {
-            transactionManager.setLoginType(loginType);
-        }
     }
 
     /**
@@ -432,7 +430,7 @@ public class DoodleView extends View implements TransactionObserver {
         }
 
         //老师的指令 & 白板不一致
-        if (loginType == 3 && this.boardId != tranList.boardId) {
+        if (tranList.roleType == 3 && this.boardId != tranList.boardId) {
             emitReceiveEvent(new Transaction.Builder()
                     .roleType(tranList.roleType)
                     .step(ActionStep.CHANGE_BOARD)

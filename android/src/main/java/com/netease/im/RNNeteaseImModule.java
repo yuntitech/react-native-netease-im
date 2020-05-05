@@ -51,7 +51,6 @@ import com.netease.im.uikit.permission.annotation.OnMPermissionGranted;
 import com.netease.im.uikit.permission.annotation.OnMPermissionNeverAskAgain;
 import com.netease.im.uikit.session.helper.MessageHelper;
 import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.ResponseCode;
@@ -72,7 +71,6 @@ import com.netease.nimlib.sdk.msg.model.RecentContact;
 import com.netease.nimlib.sdk.msg.model.SystemMessage;
 import com.netease.nimlib.sdk.nos.NosService;
 import com.netease.nimlib.sdk.rts.RTSCallback;
-import com.netease.nimlib.sdk.rts.RTSManager;
 import com.netease.nimlib.sdk.rts.model.RTSData;
 import com.netease.nimlib.sdk.team.TeamService;
 import com.netease.nimlib.sdk.team.constant.TeamBeInviteModeEnum;
@@ -128,8 +126,6 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
     public void initialize() {
         LogUtil.w(TAG, "initialize");
         mRTSModule = new RTSModule(reactContext);
-        // 白板会话监听
-        registerRTSIncomingObserver(true);
     }
 
     @Override
@@ -2035,20 +2031,6 @@ public class RNNeteaseImModule extends ReactContextBaseJavaModule implements Lif
     }
 
     /********** 白板 **************/
-
-    /**
-     * 注册/注销监听收到的会话请求
-     *
-     * @param register 注册/注销
-     */
-    private void registerRTSIncomingObserver(boolean register) {
-        RTSManager.getInstance().observeIncomingSession(new Observer<RTSData>() {
-            @Override
-            public void onEvent(RTSData rtsData) {
-                ReactCache.emit(ReactCache.observeIncomingSession, ReactCache.createRTSData(rtsData));
-            }
-        }, register);
-    }
 
     /**
      * (发送方)发起会话， 调用此接口对方会收到相应的会话请求通知

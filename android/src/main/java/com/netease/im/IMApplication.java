@@ -41,6 +41,8 @@ import com.netease.nimlib.sdk.msg.MsgServiceObserve;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.RevokeMsgNotification;
+import com.netease.nimlib.sdk.rts.RTSManager;
+import com.netease.nimlib.sdk.rts.model.RTSData;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import com.netease.nimlib.sdk.util.NIMUtil;
 
@@ -100,6 +102,8 @@ public class IMApplication {
             }
             // 初始化Kit模块
             initKit();
+            // 注册白板监听
+            registerRtsIncomingObserver();
         }
 
     }
@@ -280,6 +284,15 @@ public class IMApplication {
         // init log
         String path = StorageUtil.getDirectoryByDirType(StorageType.TYPE_LOG);
         LogUtil.init(path, Log.DEBUG);
+    }
+
+    private static void registerRtsIncomingObserver() {
+        RTSManager.getInstance().observeIncomingSession(new Observer<RTSData>() {
+            @Override
+            public void onEvent(RTSData rtsData) {
+                ReactCache.emit(ReactCache.observeIncomingSession, ReactCache.createRTSData(rtsData));
+            }
+        }, true);
     }
 
     public static boolean isApkDebugable(Context context) {
