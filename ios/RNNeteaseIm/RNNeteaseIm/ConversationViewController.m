@@ -402,27 +402,27 @@
 -(void)sendAudioMessage:(  NSString *)file duration:(  NSString *)duration{
     if (file) {
         NIMMessage *message = [NIMMessageMaker msgWithAudio:file andeSession:self._session];
-        if ([self isFriendToSendMessage:message]) {
+        // if ([self isFriendToSendMessage:message]) {
              [[[NIMSDK sharedSDK] chatManager] sendMessage:message toSession:self._session error:nil];
-        }
+        // }
     }
 }
 //发送文字消息
 -(void)sendMessage:(NSString *)mess andApnsMembers:(NSArray *)members{
     NIMMessage *message = [NIMMessageMaker msgWithText:mess andApnsMembers:members andeSession:self._session];
     //发送消息
-    if ([self isFriendToSendMessage:message]) {
+    // if ([self isFriendToSendMessage:message]) {
         [[NIMSDK sharedSDK].chatManager sendMessage:message toSession:self._session error:nil];
-    }
+    // }
 }
 //发送图片
 -(void)sendImageMessages:(  NSString *)path  displayName:(  NSString *)displayName{
     UIImage *img = [[UIImage alloc]initWithContentsOfFile:path];
     NIMMessage *message = [NIMMessageMaker msgWithImage:img andeSession:self._session];
 //    NIMMessage *message = [NIMMessageMaker msgWithImagePath:path];
-    if ([self isFriendToSendMessage:message]) {
+    // if ([self isFriendToSendMessage:message]) {
         [[NIMSDK sharedSDK].chatManager sendMessage:message toSession:self._session error:nil];
-    }
+    // }
 }
 
 //发送视频
@@ -438,9 +438,9 @@
     }
             message = [NIMMessageMaker msgWithVideo:path andeSession:self._session];
 //        }
-        if ([self isFriendToSendMessage:message]) {
+        // if ([self isFriendToSendMessage:message]) {
             [[NIMSDK sharedSDK].chatManager sendMessage:message toSession:self._session error:nil];
-        }
+        // }
 //    }];
 }
 
@@ -460,9 +460,9 @@
     obj.custType = custType;
     obj.dataDict = dataDict;
     message = [NIMMessageMaker msgWithCustomAttachment:obj andeSession:self._session];
-    if ([self isFriendToSendMessage:message]) {
+    // if ([self isFriendToSendMessage:message]) {
         [[NIMSDK sharedSDK].chatManager sendMessage:message toSession:self._session error:nil];
-    }
+    // }
 }
 
 
@@ -471,9 +471,9 @@
     NIMLocationObject *locaObj = [[NIMLocationObject alloc]initWithLatitude:[latitude doubleValue] longitude:[longitude doubleValue] title:address];
     NIMKitLocationPoint *locationPoint = [[NIMKitLocationPoint alloc]initWithLocationObject:locaObj];
     NIMMessage *message = [NIMMessageMaker msgWithLocation:locationPoint andeSession:self._session];
-    if ([self isFriendToSendMessage:message]) {
+    // if ([self isFriendToSendMessage:message]) {
         [[NIMSDK sharedSDK].chatManager sendMessage:message toSession:self._session error:nil];
-    }
+    // }
 }
 
 //发送提醒消息
