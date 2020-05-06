@@ -27,37 +27,7 @@ export type RtsCommandData = {
   startLessonPrice?: number; //上课开始价格
 };
 
-const baseType: number = 14;
-
-export const RtsCommandType = {
-  AddBoard: baseType + 1,
-  AddImage: baseType + 2,
-  AddPpt: baseType + 3,
-  AddVideo: baseType + 4,
-  ChangeBoardPage: baseType + 5,
-  DeleteBoard: baseType + 6,
-  ChangePaintColor: baseType + 7,
-  PptStartPlay: baseType + 8,
-  PptEndPlay: baseType + 9,
-  PptNextFrame: baseType + 10,
-  PptPrevFrame: baseType + 11,
-  PptChangePage: baseType + 12,
-  VideoPlay: baseType + 13,
-  VideoPause: baseType + 14,
-  VideoSeek: baseType + 15,
-  ImageRotate: baseType + 16,
-  StartLesson: baseType + 17,
-};
-
 class RTSKit {
-  /**
-   * 注册/注销监听收到的会话请求
-   *
-   * @param register 注册/注销
-   */
-  registerRTSIncomingObserver(register: boolean) {
-    return RNNeteaseIm.registerRTSIncomingObserver(register);
-  }
 
   /**
    * /**
@@ -129,14 +99,6 @@ class RTSKit {
    */
   sendBoardCommand(data: RtsCommandData) {
     RNNeteaseIm.sendBoardCommand(data);
-  }
-
-  store(key: string, value: string) {
-    RNNeteaseIm.store(key, value);
-  }
-
-  restore(key: string): Promise<string> {
-    return RNNeteaseIm.restore(key);
   }
 }
 
