@@ -878,19 +878,19 @@ public class SessionService {
             sessionName = NimUserInfoCache.getInstance().getUserName(sessionId);
 
 
-            isFriend = NIMClient.getService(FriendService.class).isMyFriend(sessionId);
-            LogUtil.w(TAG, "isFriend:" + isFriend);
-            if (!isFriend) {
+            // isFriend = NIMClient.getService(FriendService.class).isMyFriend(sessionId);
+            // LogUtil.w(TAG, "isFriend:" + isFriend);
+            // if (!isFriend) {
 
-                message.setStatus(MsgStatusEnum.fail);
-                CustomMessageConfig config = new CustomMessageConfig();
-                config.enablePush = false;
-                config.enableUnreadCount = false;
-                message.setConfig(config);
-                getMsgService().saveMessageToLocal(message, true);
-                sendTipMessage(sessionName + "开启了朋友验证，你还不是他(她)朋友。请先发送朋友验证请求，对方验证后，才能聊天。发送朋友验证", null, true, false);
-                return;
-            }
+            //     message.setStatus(MsgStatusEnum.fail);
+            //     CustomMessageConfig config = new CustomMessageConfig();
+            //     config.enablePush = false;
+            //     config.enableUnreadCount = false;
+            //     message.setConfig(config);
+            //     getMsgService().saveMessageToLocal(message, true);
+            //     sendTipMessage(sessionName + "开启了朋友验证，你还不是他(她)朋友。请先发送朋友验证请求，对方验证后，才能聊天。发送朋友验证", null, true, false);
+            //     return;
+            // }
         }
         getMsgService().sendMessage(message, resend).setCallback(new RequestCallback<Void>() {
             @Override
