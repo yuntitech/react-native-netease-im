@@ -162,29 +162,25 @@ public class RTSModule {
                     getTransactionManager(context).sendUpdateBoard(type, id);
                     break;
                 case ActionStep.CHANGE_PAINT_COLOR:
-                    getTransactionManager(context).sendChangePaintColor(
-                            (byte) getInt(params, "paintColorType"));
+                    getTransactionManager(context).sendChangePaintColor(type, getInt(params, "paintColorType"));
                     break;
                 case ActionStep.PPT_CHANGE_PAGE:
-                    getTransactionManager(context).sendChangePptPage(getInt(params, "pptIndex"));
-                    break;
-                case ActionStep.PPT_START_PLAY:
-                case ActionStep.PPT_END_PLAY:
-                case ActionStep.PPT_NEXT_FRAME:
-                case ActionStep.PPT_PREV_FRAME:
-                case ActionStep.VIDEO_PLAY:
-                case ActionStep.VIDEO_PAUSE:
-                    getTransactionManager(context).sendActionStep(type);
+                    getTransactionManager(context).sendChangePptPage(type, getInt(params, "pptIndex"));
                     break;
                 case ActionStep.VIDEO_SEEK:
                     getTransactionManager(context).sendVideoSeek(type, getDouble(params, "seekTo"));
                     break;
                 case ActionStep.START_LESSON:
+                case ActionStep.START_TRAIL:
                     long startLessonTime = getDouble(params, "startLessonTime").longValue();
-                    int startLessonPrice = getInt(params, "startLessonPrice");
-                    getTransactionManager(context).sendStartLesson(type, startLessonTime, startLessonPrice);
+                    int lessonPrice = getInt(params, "lessonPrice");
+                    getTransactionManager(context).sendStartLesson(type, startLessonTime, lessonPrice);
+                    break;
+                case ActionStep.MODIFY_PRICE:
+                    getTransactionManager(context).sendModifyPrice(type, getInt(params, "lessonPrice"));
                     break;
                 default:
+                    getTransactionManager(context).sendActionStep(type);
                     break;
             }
         }

@@ -12,19 +12,13 @@ import java.util.Locale;
  */
 public class Transaction implements Serializable {
 
-    private byte roleType;
-    private int currentBoardId;
     private byte step;
     //data
-    private int boardId;
     private float x;
     private float y;
-    private String url;
-    private byte paintColorType;
-    private int pptIndex;
-    private double seekTo;
-    private long startLessonTime;
-    private int startLessonPrice;
+    //
+    private String dataFirst;
+    private String dataSecond;
     private static List<Byte> COMMAND_OPERATE = Arrays.asList(
             ActionStep.ADD_BOARD,
             ActionStep.ADD_IMAGE,
@@ -41,7 +35,9 @@ public class Transaction implements Serializable {
             ActionStep.VIDEO_PLAY,
             ActionStep.VIDEO_PAUSE,
             ActionStep.VIDEO_SEEK,
-            ActionStep.START_LESSON
+            ActionStep.START_LESSON,
+            ActionStep.MODIFY_PRICE,
+            ActionStep.END_LESSON
     );
     private static List<Byte> PAINT_OPERATE = Arrays.asList(
             ActionStep.START,
@@ -49,62 +45,64 @@ public class Transaction implements Serializable {
             ActionStep.ERASER,
             ActionStep.END);
 
+    Transaction(byte step) {
+        this.step = step;
+    }
 
-    Transaction(Builder builder) {
-        this.roleType = builder.roleType;
-        this.currentBoardId = builder.currentBoardId;
-        this.step = builder.step;
-        this.boardId = builder.boardId;
-        this.x = builder.x;
-        this.y = builder.y;
-        this.url = builder.url;
-        this.paintColorType = builder.paintColorType;
-        this.pptIndex = builder.pptIndex;
-        this.seekTo = builder.seekTo;
-        this.startLessonTime = builder.startLessonTime;
-        this.startLessonPrice = builder.startLessonPrice;
+    Transaction(byte step, float x, float y) {
+        this.step = step;
+        this.x = x;
+        this.y = y;
+    }
+
+    Transaction(byte step, String dataFirst) {
+        this.step = step;
+        this.dataFirst = dataFirst;
+    }
+
+    Transaction(byte step, String dataFirst, String dataSecond) {
+        this.step = step;
+        this.dataFirst = dataFirst;
+        this.dataSecond = dataSecond;
+    }
+
+    String getDataFirst() {
+        return dataFirst;
+    }
+
+    String getDataSecond() {
+        return dataSecond;
     }
 
 
     static String pack(Transaction t) {
         switch (t.step) {
-            case ActionStep.ADD_IMAGE:
-            case ActionStep.ADD_PPT:
-            case ActionStep.ADD_VIDEO:
-                return String.format(Locale.CHINA, "%d:%d,%s;", t.step, t.boardId, t.url);
             case ActionStep.ADD_BOARD:
             case ActionStep.CHANGE_BOARD:
             case ActionStep.DELETE_BOARD:
-                return String.format(Locale.CHINA, "%d:%d;", t.step, t.boardId);
             case ActionStep.CHANGE_PAINT_COLOR:
-                return String.format(Locale.CHINA, "%d:%d;", t.step, t.paintColorType);
             case ActionStep.PPT_CHANGE_PAGE:
-                return String.format(Locale.CHINA, "%d:%d;", t.step, t.pptIndex);
-            case ActionStep.PPT_START_PLAY:
-            case ActionStep.PPT_END_PLAY:
-            case ActionStep.PPT_NEXT_FRAME:
-            case ActionStep.PPT_PREV_FRAME:
-            case ActionStep.VIDEO_PLAY:
-            case ActionStep.VIDEO_PAUSE:
-            case ActionStep.ERASER:
-                return String.format(Locale.CHINA, "%d", t.step);
             case ActionStep.VIDEO_SEEK:
-                return String.format(Locale.CHINA, "%d:%f;", t.step, t.seekTo);
+            case ActionStep.MODIFY_PRICE:
+                return String.format(Locale.CHINA, "%d:%s;", t.step, t.dataFirst);
+            case ActionStep.ADD_IMAGE:
+            case ActionStep.ADD_PPT:
+            case ActionStep.ADD_VIDEO:
             case ActionStep.START_LESSON:
-                return String.format(Locale.CHINA, "%d:%d,%d", t.step, t.startLessonTime, t.startLessonPrice);
-            default:
+                return String.format(Locale.CHINA, "%d:%s,%s", t.step, t.dataFirst, t.dataSecond);
+            case ActionStep.START:
+            case ActionStep.MOVE:
+            case ActionStep.END:
                 return String.format(Locale.CHINA, "%d:%f,%f;", t.step, t.x, t.y);
+            default:
+                return String.format(Locale.CHINA, "%d:", t.step);
         }
 
     }
 
-    static String packIndex(int index) {
-        return String.format("5:%d,0;", index);
-    }
 
     static Transaction unpack(String data, byte roleType, int currentBoardId) {
 //        LogUtil.log("unpack data %s", data);
-        LogUtil.log("##", "unpack " + data);
         int sp1 = data.indexOf(":");
         if (sp1 <= 0) {
             return null;
@@ -114,59 +112,32 @@ public class Transaction implements Serializable {
         String infoStr = data.substring(sp1 + 1);
         String[] dataInfo = infoStr.split(",");
 
-//        if (dataInfo.length < 2) {
-//            return null;
-//        }
 
         try {
             byte p1 = Byte.parseByte(step);
-//            if (p1 == 5) {
-//                return null;
-//            }
-            Builder builder = new Builder().step(p1);
-            int boardId;
             switch (p1) {
+                case ActionStep.ADD_BOARD:
+                case ActionStep.DELETE_BOARD:
+                case ActionStep.CHANGE_PAINT_COLOR:
+                case ActionStep.VIDEO_SEEK:
+                case ActionStep.MODIFY_PRICE:
+                    return new Transaction(p1, dataInfo[0]);
+                case ActionStep.CHANGE_BOARD:
+                    return new Transaction(p1, dataInfo[0], String.valueOf(roleType));
+                case ActionStep.PPT_CHANGE_PAGE:
+                    return new Transaction(p1, dataInfo[0], String.valueOf(currentBoardId));
                 case ActionStep.ADD_IMAGE:
                 case ActionStep.ADD_PPT:
                 case ActionStep.ADD_VIDEO:
-                    boardId = Integer.parseInt(dataInfo[0]);
-                    builder.boardId(boardId).url(dataInfo[1]);
-                    break;
-                case ActionStep.ADD_BOARD:
-                case ActionStep.CHANGE_BOARD:
-                case ActionStep.DELETE_BOARD:
-                    boardId = Integer.parseInt(dataInfo[0]);
-                    builder.roleType(roleType).boardId(boardId);
-                    LogUtil.log("##", "command " + p1 + " boardId  " + +boardId);
-                    break;
-                case ActionStep.CHANGE_PAINT_COLOR:
-                    builder.paintColorType(Byte.valueOf(dataInfo[0]));
-                    break;
-                case ActionStep.PPT_CHANGE_PAGE:
-                    builder.boardId(currentBoardId);
-                    builder.pptIndex(Integer.valueOf(dataInfo[0]));
-                    break;
-                case ActionStep.PPT_START_PLAY:
-                case ActionStep.PPT_END_PLAY:
-                case ActionStep.PPT_NEXT_FRAME:
-                case ActionStep.PPT_PREV_FRAME:
-                case ActionStep.VIDEO_PLAY:
-                case ActionStep.VIDEO_PAUSE:
-                case ActionStep.ERASER:
-                    break;
-                case ActionStep.VIDEO_SEEK:
-                    builder.seekTo(Double.valueOf(dataInfo[0]));
-                    break;
                 case ActionStep.START_LESSON:
-                    builder.startLessonTime(Long.valueOf(dataInfo[0]));
-                    builder.startLessonPrice(Integer.valueOf(dataInfo[1]));
-                    break;
+                    return new Transaction(p1, dataInfo[0], dataInfo[1]);
+                case ActionStep.START:
+                case ActionStep.MOVE:
+                case ActionStep.END:
+                    return new Transaction(p1, Float.valueOf(dataInfo[0]), Float.valueOf(dataInfo[1]));
                 default:
-                    builder.coordinate(Float.valueOf(dataInfo[0]),
-                            Float.valueOf(dataInfo[1]));
-                    break;
+                    return new Transaction(p1);
             }
-            return builder.build();
         } catch (Exception e) {
             LogUtil.log("error %s", e.getMessage());
             e.printStackTrace();
@@ -185,43 +156,6 @@ public class Transaction implements Serializable {
 
     float getY() {
         return y;
-    }
-
-    int getBoardId() {
-        return boardId;
-    }
-
-    byte getRoleType() {
-        return roleType;
-    }
-
-    int getCurrentBoardId() {
-        return currentBoardId;
-    }
-
-
-    String getUrl() {
-        return url;
-    }
-
-    byte getPaintColorType() {
-        return paintColorType;
-    }
-
-    int getPptIndex() {
-        return pptIndex;
-    }
-
-    double getSeekTo() {
-        return seekTo;
-    }
-
-    long getStartLessonTime() {
-        return startLessonTime;
-    }
-
-    int getStartLessonPrice() {
-        return startLessonPrice;
     }
 
     boolean isPaint() {
@@ -243,85 +177,6 @@ public class Transaction implements Serializable {
 
     boolean isClearAck() {
         return step == ActionStep.CLEAR_ACK;
-    }
-
-
-    public static class Builder {
-        private byte roleType;
-        private int currentBoardId;
-        private int boardId;
-        private byte step;
-        private float x;
-        private float y;
-        private String url;
-        private byte paintColorType;
-        private int pptIndex;
-        private double seekTo;
-        private long startLessonTime;
-        private int startLessonPrice;
-
-        Builder roleType(byte roleType) {
-            this.roleType = roleType;
-            return this;
-        }
-
-        public Builder currentBoardId(int currentBoardId) {
-            this.currentBoardId = currentBoardId;
-            return this;
-        }
-
-
-        Builder step(byte step) {
-            this.step = step;
-            return this;
-        }
-
-
-        Builder boardId(int boardId) {
-            this.boardId = boardId;
-            return this;
-        }
-
-        Builder coordinate(float x, float y) {
-            this.x = x;
-            this.y = y;
-            return this;
-        }
-
-        Builder url(String url) {
-            this.url = url;
-            return this;
-        }
-
-        Builder paintColorType(byte paintColorType) {
-            this.paintColorType = paintColorType;
-            return this;
-        }
-
-        Builder pptIndex(int pptIndex) {
-            this.pptIndex = pptIndex;
-            return this;
-        }
-
-        Builder seekTo(double seekTo) {
-            this.seekTo = seekTo;
-            return this;
-        }
-
-        Builder startLessonTime(long startLessonTime) {
-            this.startLessonTime = startLessonTime;
-            return this;
-        }
-
-        Builder startLessonPrice(int startLessonPrice) {
-            this.startLessonPrice = startLessonPrice;
-            return this;
-        }
-
-        Transaction build() {
-            return new Transaction(this);
-        }
-
     }
 
 

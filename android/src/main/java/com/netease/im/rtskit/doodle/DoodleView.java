@@ -9,7 +9,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Region;
 import android.util.ArrayMap;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -123,17 +122,6 @@ public class DoodleView extends View implements TransactionObserver {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mEraserMode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
-        // 初始化画板
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int landscapeWidth = Math.max(dm.widthPixels, dm.heightPixels);
-        int landscapeHeight = Math.min(dm.widthPixels, dm.heightPixels);
-//        int bitmapWidth = (int) (landscapeWidth * 0.75);
-        int bitmapWidth = (int) (landscapeHeight * 3f / 2);
-        LogUtil.log("landscapeWidth %d , landscapeHeight %d density %f", landscapeWidth, landscapeHeight, dm.density);
-        mBitmap = Bitmap.createBitmap(bitmapWidth, landscapeHeight, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-        zoomX = bitmapWidth;
-        zoomY = landscapeHeight;
         //
         mGestureDetector = new GestureDetector(getContext(), new GestureDetector.GestureDetectorDelegate() {
             @Override
@@ -176,7 +164,6 @@ public class DoodleView extends View implements TransactionObserver {
         this.paintChannel = getPaintChannel(KEY_PAINT + boardId);
         // 橡皮檫路径
         this.mEraserPath = new Path();
-        this.mClip = new Region(0, 0, bitmapWidth, landscapeHeight);
     }
 
     /**
@@ -195,6 +182,18 @@ public class DoodleView extends View implements TransactionObserver {
         }
 
         this.bgColor = bgColor;
+    }
+
+    public void setCanvasSize(int widthDp, int heightDp) {
+        float density = getResources().getDisplayMetrics().density;
+        int width = (int) (widthDp * density);
+        int height = (int) (heightDp * density);
+        // 初始化画板
+        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
+        zoomX = width;
+        zoomY = height;
+        this.mClip = new Region(0, 0, width, height);
     }
 
     public void initPlaybackChannel() {
@@ -431,11 +430,9 @@ public class DoodleView extends View implements TransactionObserver {
 
         //老师的指令 & 白板不一致
         if (tranList.roleType == 3 && this.boardId != tranList.boardId) {
-            emitReceiveEvent(new Transaction.Builder()
-                    .roleType(tranList.roleType)
-                    .step(ActionStep.CHANGE_BOARD)
-                    .boardId(tranList.boardId)
-                    .build());
+            emitReceiveEvent(new Transaction(ActionStep.CHANGE_BOARD,
+                    String.valueOf(tranList.boardId),
+                    String.valueOf(tranList.roleType)));
         }
         List<Transaction> cache = new ArrayList<>(tranList.trans.size());
         for (Transaction t : tranList.trans) {
@@ -646,29 +643,39 @@ public class DoodleView extends View implements TransactionObserver {
     private void emitReceiveEvent(Transaction t) {
         WritableMap event = Arguments.createMap();
         event.putInt("type", t.getStep());
-        event.putInt("roleType", t.getRoleType());
         switch (t.getStep()) {
-            case ActionStep.START_LESSON:
-                event.putDouble("startLessonTime", t.getStartLessonTime());
-                event.putDouble("startLessonPrice", t.getStartLessonPrice());
-                break;
-            case ActionStep.CHANGE_PAINT_COLOR:
-                event.putInt("paintColorType", t.getPaintColorType());
-                break;
-            case ActionStep.VIDEO_SEEK:
-                event.putDouble("seekTo", t.getSeekTo());
-                break;
             case ActionStep.ADD_IMAGE:
             case ActionStep.ADD_PPT:
             case ActionStep.ADD_VIDEO:
-                event.putString("url", t.getUrl());
+                event.putInt("id", Integer.valueOf(t.getDataFirst()));
+                event.putString("url", t.getDataSecond());
+                break;
+            case ActionStep.ADD_BOARD:
+            case ActionStep.DELETE_BOARD:
+                event.putInt("id", Integer.valueOf(t.getDataFirst()));
+                break;
+            case ActionStep.CHANGE_BOARD:
+                event.putInt("id", Integer.valueOf(t.getDataFirst()));
+                event.putInt("roleType", Integer.valueOf(t.getDataSecond()));
+                break;
+            case ActionStep.START_LESSON:
+                event.putDouble("startLessonTime", Double.valueOf(t.getDataFirst()));
+                event.putInt("lessonPrice", Integer.valueOf(t.getDataSecond()));
+                break;
+            case ActionStep.CHANGE_PAINT_COLOR:
+                event.putInt("paintColorType", Integer.valueOf(t.getDataFirst()));
+                break;
+            case ActionStep.VIDEO_SEEK:
+                event.putDouble("seekTo", Double.valueOf(t.getDataFirst()));
                 break;
             case ActionStep.PPT_CHANGE_PAGE:
-                event.putInt("pptIndex", t.getPptIndex());
+                event.putInt("pptIndex", Integer.valueOf(t.getDataFirst()));
+                event.putInt("id", Integer.valueOf(t.getDataSecond()));
+                break;
+            case ActionStep.MODIFY_PRICE:
+                event.putInt("lessonPrice", Integer.valueOf(t.getDataFirst()));
                 break;
         }
-        event.putInt("id", t.getBoardId());
-        event.putInt("currentBoardId", t.getCurrentBoardId());
         mEventEmitter.receiveEvent(getParentId(), Events.EVENT_RECEIVE_RTS_DATA.toString(), event);
     }
 

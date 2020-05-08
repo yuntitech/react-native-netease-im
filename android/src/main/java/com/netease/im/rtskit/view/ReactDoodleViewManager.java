@@ -50,6 +50,7 @@ public class ReactDoodleViewManager extends SimpleViewManager<DoodleContainer> {
     private static final String PROP_PAINT_COLOR_TYPE = "paintColorType";
     private static final String PROP_REMOTE_PAINT_COLOR_TYPE = "remotePaintColorType";
     private static final String PROP_LOGIN_TYPE = "loginType";
+    private static final String PROP_CANVAS_SIZE = "canvasSize";
     private static final SparseIntArray PAINT_COLOR_SUPPORT;
 
     static {
@@ -173,6 +174,11 @@ public class ReactDoodleViewManager extends SimpleViewManager<DoodleContainer> {
     @ReactProp(name = PROP_LOGIN_TYPE)
     public void setLoginType(final DoodleContainer doodleContainer, int loginType) {
         doodleContainer.getDoodleView().setLoginType((byte) loginType);
+    }
+
+    @ReactProp(name = PROP_CANVAS_SIZE)
+    public void setCanvasSize(final DoodleContainer doodleContainer, ReadableMap size) {
+        doodleContainer.getDoodleView().setCanvasSize(size.getInt("width"), size.getInt("height"));
     }
 
 

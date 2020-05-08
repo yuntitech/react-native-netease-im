@@ -50,6 +50,9 @@ public class ActionStep {
     public static final byte VIDEO_SEEK = BASE + 15;
     public static final byte ImageRotate = BASE + 16;
     public static final byte START_LESSON = BASE + 17;
+    public static final byte START_TRAIL = BASE + 18;
+    public static final byte MODIFY_PRICE = BASE + 19;
+    public static final byte END_LESSON = BASE + 20;
 //     AddBoard: baseType + 1,
 //  ChangeBoardPage: baseType + 5,
 //  DeleteBoard: baseType + 6,

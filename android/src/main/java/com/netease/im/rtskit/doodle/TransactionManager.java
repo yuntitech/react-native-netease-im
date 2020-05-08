@@ -55,64 +55,63 @@ public class TransactionManager {
     }
 
     public void sendStartTransaction(float x, float y) {
-        cache.add(new Transaction.Builder().step(ActionStep.START).coordinate(x, y).build());
+        cache.add(new Transaction(ActionStep.START, x, y));
     }
 
     public void sendMoveTransaction(float x, float y) {
-        cache.add(new Transaction.Builder().step(ActionStep.MOVE).coordinate(x, y).build());
+        cache.add(new Transaction(ActionStep.MOVE, x, y));
     }
 
     public void sendEndTransaction(float x, float y) {
-        cache.add(new Transaction.Builder().step(ActionStep.END).coordinate(x, y).build());
+        cache.add(new Transaction(ActionStep.END, x, y));
     }
 
     public void sendRevokeTransaction() {
-        cache.add(new Transaction.Builder().step(ActionStep.REVOKE).build());
+        cache.add(new Transaction(ActionStep.REVOKE));
     }
 
     public void sendEraserTransaction() {
-        cache.add(new Transaction.Builder().step(ActionStep.ERASER).build());
+        cache.add(new Transaction(ActionStep.ERASER));
     }
 
     public void sendClearSelfTransaction() {
-        cache.add(new Transaction.Builder().step(ActionStep.CLEAR_SELF).build());
+        cache.add(new Transaction(ActionStep.CLEAR_SELF));
     }
 
     public void sendClearAckTransaction() {
-        cache.add(new Transaction.Builder().step(ActionStep.CLEAR_ACK).build());
+        cache.add(new Transaction(ActionStep.CLEAR_ACK));
     }
 
     public void sendUpdateBoard(byte step, int boardId, String url) {
-        sendToRemote(new Transaction.Builder().step(step).boardId(boardId).url(url).build());
+        sendToRemote(new Transaction(step, String.valueOf(boardId), url));
     }
 
     public void sendUpdateBoard(byte step, int boardId) {
-        sendToRemote(new Transaction.Builder().step(step).boardId(boardId).build());
+        sendToRemote(new Transaction(step, String.valueOf(boardId)));
     }
 
-    public void sendChangePaintColor(byte paintColorType) {
-        sendToRemote(new Transaction.Builder().step(ActionStep.CHANGE_PAINT_COLOR)
-                .paintColorType(paintColorType).build());
+    public void sendChangePaintColor(byte step, int paintColorType) {
+        sendToRemote(new Transaction(step, String.valueOf(paintColorType)));
     }
 
-    public void sendChangePptPage(int pptIndex) {
-        sendToRemote(new Transaction.Builder().step(ActionStep.PPT_CHANGE_PAGE).pptIndex(pptIndex).build());
+    public void sendChangePptPage(byte step, int pptIndex) {
+        sendToRemote(new Transaction(step, String.valueOf(pptIndex)));
     }
 
     public void sendActionStep(byte step) {
-        sendToRemote(new Transaction.Builder().step(step).build());
+        sendToRemote(new Transaction(step));
     }
 
     public void sendVideoSeek(byte step, double seekTo) {
-        sendToRemote(new Transaction.Builder().step(step).seekTo(seekTo).build());
+        sendToRemote(new Transaction(step, String.valueOf(seekTo)));
     }
 
-    public void sendStartLesson(byte step, long startLessonTime, int startLessonPrice) {
-        sendToRemote(new Transaction.Builder()
-                .step(step)
-                .startLessonTime(startLessonTime)
-                .startLessonPrice(startLessonPrice)
-                .build());
+    public void sendStartLesson(byte step, long startLessonTime, int lessonPrice) {
+        sendToRemote(new Transaction(step, String.valueOf(startLessonTime), String.valueOf(lessonPrice)));
+    }
+
+    public void sendModifyPrice(byte step, int lessonPrice) {
+        sendToRemote(new Transaction(step, String.valueOf(lessonPrice)));
     }
 
     private Runnable timerTask = new Runnable() {
