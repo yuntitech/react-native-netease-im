@@ -5,3 +5,5 @@ android/.idea/
 .DS_Store
 .idea/
 react-native-android.md
+ios/RNNeteaseIm/RNNeteaseIm.xcodeproj/project.xcworkspace/xcuserdata
+ios/RNNeteaseIm/RNNeteaseIm.xcodeproj/xcuserdata/
