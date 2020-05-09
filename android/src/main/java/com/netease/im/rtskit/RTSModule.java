@@ -179,6 +179,9 @@ public class RTSModule {
                 case ActionStep.MODIFY_PRICE:
                     getTransactionManager(context).sendModifyPrice(type, getInt(params, "lessonPrice"));
                     break;
+                case ActionStep.IMAGE_ROTATE:
+                    getTransactionManager(context).sendImageRotate(type, getInt(params, "imgRotateIndex"));
+                    break;
                 default:
                     getTransactionManager(context).sendActionStep(type);
                     break;

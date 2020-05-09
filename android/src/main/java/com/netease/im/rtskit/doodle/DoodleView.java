@@ -1,4 +1,4 @@
-package com.netease.im.rtskit.doodle;
+git package com.netease.im.rtskit.doodle;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -443,24 +443,25 @@ public class DoodleView extends View implements TransactionObserver {
             if (t.isPaint()) {
                 // 正常画笔
                 cache.add(t);
-            } else if (t.isCommand()) {
-                emitReceiveEvent(t);
+            } else if (t.isRevoke()) {
+                back(false);
             } else {
-                onMultiTransactionsDraw(cache, tranList.boardId);
-                cache.clear();
-                if (t.isRevoke()) {
-                    back(false);
-                } else if (t.isClearSelf()) {
-                    //收到对方clear 数据的请求
-                    clearAll();
-                    if (transactionManager != null) {
-                        transactionManager.sendClearAckTransaction();
-                    }
-                } else if (t.isClearAck()) {
-                    //对方收到了你的 clear 请求
-//                    clearAll();
-                }
+                emitReceiveEvent(t);
             }
+            //onMultiTransactionsDraw(cache, tranList.boardId);
+//                cache.clear();
+//                if (t.isRevoke()) {
+//                    back(false);
+//                } else if (t.isClearSelf()) {
+//                    //收到对方clear 数据的请求
+//                    clearAll();
+//                    if (transactionManager != null) {
+//                        transactionManager.sendClearAckTransaction();
+//                    }
+//                } else if (t.isClearAck()) {
+//                    //对方收到了你的 clear 请求
+////                    clearAll();
+//                }
         }
 
         if (cache.size() > 0) {
@@ -674,6 +675,10 @@ public class DoodleView extends View implements TransactionObserver {
                 break;
             case ActionStep.MODIFY_PRICE:
                 event.putInt("lessonPrice", Integer.valueOf(t.getDataFirst()));
+                break;
+            case ActionStep.IMAGE_ROTATE:
+                event.putInt("imgRotateIndex", Integer.valueOf(t.getDataFirst()));
+                event.putInt("id", Integer.valueOf(t.getDataSecond()));
                 break;
         }
         mEventEmitter.receiveEvent(getParentId(), Events.EVENT_RECEIVE_RTS_DATA.toString(), event);

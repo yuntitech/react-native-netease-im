@@ -48,7 +48,7 @@ public class ActionStep {
     public static final byte VIDEO_PLAY = BASE + 13;
     public static final byte VIDEO_PAUSE = BASE + 14;
     public static final byte VIDEO_SEEK = BASE + 15;
-    public static final byte ImageRotate = BASE + 16;
+    public static final byte IMAGE_ROTATE = BASE + 16;
     public static final byte START_LESSON = BASE + 17;
     public static final byte START_TRAIL = BASE + 18;
     public static final byte MODIFY_PRICE = BASE + 19;

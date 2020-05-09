@@ -84,6 +84,7 @@ public class Transaction implements Serializable {
             case ActionStep.PPT_CHANGE_PAGE:
             case ActionStep.VIDEO_SEEK:
             case ActionStep.MODIFY_PRICE:
+            case ActionStep.IMAGE_ROTATE:
                 return String.format(Locale.CHINA, "%d:%s;", t.step, t.dataFirst);
             case ActionStep.ADD_IMAGE:
             case ActionStep.ADD_PPT:
@@ -124,6 +125,7 @@ public class Transaction implements Serializable {
                     return new Transaction(p1, dataInfo[0]);
                 case ActionStep.CHANGE_BOARD:
                     return new Transaction(p1, dataInfo[0], String.valueOf(roleType));
+                case ActionStep.IMAGE_ROTATE:
                 case ActionStep.PPT_CHANGE_PAGE:
                     return new Transaction(p1, dataInfo[0], String.valueOf(currentBoardId));
                 case ActionStep.ADD_IMAGE:
