@@ -19,6 +19,8 @@ public class Transaction implements Serializable {
     //
     private String dataFirst;
     private String dataSecond;
+    private String dataThird;
+    private String dataFour;
     private static List<Byte> COMMAND_OPERATE = Arrays.asList(
             ActionStep.ADD_BOARD,
             ActionStep.ADD_IMAGE,
@@ -66,6 +68,21 @@ public class Transaction implements Serializable {
         this.dataSecond = dataSecond;
     }
 
+    public Transaction(byte step, String dataFirst, String dataSecond, String dataThird) {
+        this.step = step;
+        this.dataFirst = dataFirst;
+        this.dataSecond = dataSecond;
+        this.dataThird = dataThird;
+    }
+
+    public Transaction(byte step, String dataFirst, String dataSecond, String dataThird, String dataFour) {
+        this.step = step;
+        this.dataFirst = dataFirst;
+        this.dataSecond = dataSecond;
+        this.dataThird = dataThird;
+        this.dataFour = dataFour;
+    }
+
     String getDataFirst() {
         return dataFirst;
     }
@@ -74,6 +91,13 @@ public class Transaction implements Serializable {
         return dataSecond;
     }
 
+    public String getDataThird() {
+        return dataThird;
+    }
+
+    public String getDataFour() {
+        return dataFour;
+    }
 
     static String pack(Transaction t) {
         switch (t.step) {
@@ -88,9 +112,11 @@ public class Transaction implements Serializable {
                 return String.format(Locale.CHINA, "%d:%s;", t.step, t.dataFirst);
             case ActionStep.ADD_IMAGE:
             case ActionStep.ADD_PPT:
-            case ActionStep.ADD_VIDEO:
             case ActionStep.START_LESSON:
                 return String.format(Locale.CHINA, "%d:%s,%s", t.step, t.dataFirst, t.dataSecond);
+            case ActionStep.ADD_VIDEO:
+                return String.format(Locale.CHINA, "%d:%s,%s,%s,%s", t.step, t.dataFirst,
+                        t.dataSecond, t.dataThird, t.dataFour);
             case ActionStep.START:
             case ActionStep.MOVE:
             case ActionStep.END:
@@ -130,9 +156,10 @@ public class Transaction implements Serializable {
                     return new Transaction(p1, dataInfo[0], String.valueOf(currentBoardId));
                 case ActionStep.ADD_IMAGE:
                 case ActionStep.ADD_PPT:
-                case ActionStep.ADD_VIDEO:
                 case ActionStep.START_LESSON:
                     return new Transaction(p1, dataInfo[0], dataInfo[1]);
+                case ActionStep.ADD_VIDEO:
+                    return new Transaction(p1, dataInfo[0], dataInfo[1], dataInfo[2], dataInfo[3]);
                 case ActionStep.START:
                 case ActionStep.MOVE:
                 case ActionStep.END:

@@ -1,4 +1,4 @@
-git package com.netease.im.rtskit.doodle;
+package com.netease.im.rtskit.doodle;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -647,9 +647,14 @@ public class DoodleView extends View implements TransactionObserver {
         switch (t.getStep()) {
             case ActionStep.ADD_IMAGE:
             case ActionStep.ADD_PPT:
+                event.putInt("id", Integer.valueOf(t.getDataFirst()));
+                event.putString("url", t.getDataSecond());
+                break;
             case ActionStep.ADD_VIDEO:
                 event.putInt("id", Integer.valueOf(t.getDataFirst()));
                 event.putString("url", t.getDataSecond());
+                event.putString("videoTitle", t.getDataThird());
+                event.putString("videoThumb", t.getDataFour());
                 break;
             case ActionStep.ADD_BOARD:
             case ActionStep.DELETE_BOARD:

@@ -147,13 +147,19 @@ public class RTSModule {
         if (canSend()) {
             byte type = getDouble(params, "type").byteValue();
             int id;
+            String url;
             switch (type) {
                 case ActionStep.ADD_IMAGE:
                 case ActionStep.ADD_PPT:
+                    id = getDouble(params, "id").intValue();
+                    url = getString(params, "url");
+                    getTransactionManager(context).sendUpdateBoard(type, id, url);
+                    break;
                 case ActionStep.ADD_VIDEO:
                     id = getDouble(params, "id").intValue();
-                    String url = getString(params, "url");
-                    getTransactionManager(context).sendUpdateBoard(type, id, url);
+                    url = getString(params, "url");
+                    getTransactionManager(context).sendUpdateBoard(type, id, url,
+                            getString(params, "videoTitle"), getString(params, "videoThumb"));
                     break;
                 case ActionStep.ADD_BOARD:
                 case ActionStep.CHANGE_BOARD:
@@ -373,7 +379,7 @@ public class RTSModule {
     }
 
     private String getString(ReadableMap params, String key) {
-        return params.hasKey(key) ? params.getString(key) : null;
+        return params.hasKey(key) ? params.getString(key) : "";
     }
 
     private int getInt(ReadableMap params, String key) {

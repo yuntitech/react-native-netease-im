@@ -86,6 +86,10 @@ public class TransactionManager {
         sendToRemote(new Transaction(step, String.valueOf(boardId), url));
     }
 
+    public void sendUpdateBoard(byte step, int boardId, String url, String videoTitle, String videoThumb) {
+        sendToRemote(new Transaction(step, String.valueOf(boardId), url, videoTitle, videoThumb));
+    }
+
     public void sendUpdateBoard(byte step, int boardId) {
         sendToRemote(new Transaction(step, String.valueOf(boardId)));
     }
