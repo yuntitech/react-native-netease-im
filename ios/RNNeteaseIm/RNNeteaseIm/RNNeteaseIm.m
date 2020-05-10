@@ -20,7 +20,7 @@
 
 #define kDevice_Is_iPhoneX ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(1125, 2436), [[UIScreen mainScreen] currentMode].size) : NO)
 
-@interface RNNeteaseIm(){
+@interface RNNeteaseIm() <NIMEventSubscribeManagerDelegate> {
     NSString *strUserAgent;
 }
 
@@ -30,6 +30,7 @@
 
 - (void)dealloc{
     [[NSNotificationCenter defaultCenter]removeObserver:self];
+    [[NIMSDK sharedSDK].subscribeManager removeDelegate:self];
 }
 
 - (instancetype)init{
@@ -38,6 +39,7 @@
     }
     [self initController];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(clickObserveNotification:) name:@"ObservePushNotification" object:nil];
+    [[NIMSDK sharedSDK].subscribeManager addDelegate:self];
     return self;
 }
 
@@ -877,4 +879,58 @@ RCT_EXPORT_METHOD(setupWebViewUserAgent){
     return YES;
 }
 
+#pragma mark - 监听在线状态
+RCT_EXPORT_METHOD(subscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)contactIds
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    NIMSubscribeRequest *request = [self generateUserOnlineStatusRequest];
+    request.publishers = contactIds;
+    [[NIMSDK sharedSDK].subscribeManager subscribeEvent:request
+                                             completion:^(NSError * _Nullable error, NSArray * _Nullable failedPublishers) {
+
+    }];
+    resolve(contactIds);
+}
+
+RCT_EXPORT_METHOD(unsubscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)contactIds
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    NIMSubscribeRequest *request = [self generateUserOnlineStatusRequest];
+    request.publishers = contactIds;
+    [[NIMSDK sharedSDK].subscribeManager unSubscribeEvent:request completion:^(NSError * _Nullable error, NSArray * _Nullable failedPublishers) {
+        
+    }];
+    resolve(contactIds);
+}
+
+- (NIMSubscribeRequest *)generateUserOnlineStatusRequest {
+    NIMSubscribeRequest *request = [[NIMSubscribeRequest alloc] init];
+    request.type = NIMSubscribeSystemEventTypeOnline;
+    NSInteger oneDay = 60 * 60 * 24 * 1;
+    request.expiry = oneDay;
+    request.syncEnabled = YES;
+    return request;
+}
+
+#pragma mark - NIMEventSubscribeManagerDelegate
+
+- (void)onRecvSubscribeEvents:(NSArray<NIMSubscribeEvent *> *)events {
+    NSMutableArray<NSString *> *onlineUsers = [NSMutableArray array];
+    for (NIMSubscribeEvent *event in events) {
+        if (event.type == NIMSubscribeSystemEventTypeOnline) {
+            NIMSubscribeOnlineInfo *onlineInfo = event.subscribeInfo;
+            NSArray<NSNumber *> *types = onlineInfo.senderClientTypes;
+            if (types != nil && types.count > 0) {
+                [onlineUsers addObject:event.from];
+            }
+        }
+    }
+    
+    if (onlineUsers.count > 0) {
+        [_bridge.eventDispatcher sendDeviceEventWithName:@"observeUserOnlineStatus" body:@{@"onlineUsers":onlineUsers}];
+    }
+}
+
 @end
+
+

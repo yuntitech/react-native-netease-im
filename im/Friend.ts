@@ -4,8 +4,8 @@
  * @Last Modified by: huangjun
  * @Last Modified time: 2020-04-19 17:26:46
  */
-import {NativeModules} from 'react-native';
-const {RNNeteaseIm} = NativeModules;
+import { NativeModules } from "react-native";
+const { RNNeteaseIm } = NativeModules;
 class Friend {
   /**
    * 进入好友
@@ -124,5 +124,27 @@ class Friend {
   removeFromBlackList(contactId) {
     return RNNeteaseIm.removeFromBlackList(contactId);
   }
+
+  /**
+   * 订阅用户在线状态
+   *
+   * @return contactIds
+   */
+  subscribeUserOnlineStatus = async (
+    contactIds: string[]
+  ): Promise<string[]> => {
+    return RNNeteaseIm.subscribeUserOnlineStatus(contactIds);
+  };
+
+  /**
+   * 取消订阅用户在线状态
+   *
+   * @return contactIds
+   */
+  unsubscribeUserOnlineStatus = async (
+    contactIds: string[]
+  ): Promise<string[]> => {
+    return RNNeteaseIm.unsubscribeUserOnlineStatus(contactIds);
+  };
 }
 export default new Friend();
