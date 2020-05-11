@@ -923,9 +923,9 @@ RCT_EXPORT_METHOD(unsubscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)con
             NSArray<NSNumber *> *types = onlineInfo.senderClientTypes;
             NSString *contactId = event.from;
             if (types != nil && types.count > 0) {
-                [onlineUsers addObject:event.from];
+                [onlineUsers addObject:contactId];
             } else {
-                [offlineUsers addObject:event.from];
+                [offlineUsers addObject:contactId];
             }
         }
     }
