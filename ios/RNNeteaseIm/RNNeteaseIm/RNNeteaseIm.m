@@ -24,6 +24,8 @@
     NSString *strUserAgent;
 }
 
+@property (nonatomic) NSMutableSet<NSString *> *subscribedContactIds;
+
 @end
 
 @implementation RNNeteaseIm
@@ -35,7 +37,7 @@
 
 - (instancetype)init{
     if (self = [super init]) {
-        
+        _subscribedContactIds = [NSMutableSet set];
     }
     [self initController];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(clickObserveNotification:) name:@"ObservePushNotification" object:nil];
@@ -883,8 +885,15 @@ RCT_EXPORT_METHOD(setupWebViewUserAgent){
 RCT_EXPORT_METHOD(subscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)contactIds
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
+    NSMutableArray *contactIdsToSubscribe = [NSMutableArray arrayWithCapacity:contactIds.count];
+    for (NSString *contactId in contactIds) {
+        if ([self.subscribedContactIds containsObject:contactId] == NO) {
+            [contactIdsToSubscribe addObject:contactId];
+            [self.subscribedContactIds addObject:contactId];
+        }
+    }
     NIMSubscribeRequest *request = [self generateUserOnlineStatusRequest];
-    request.publishers = contactIds;
+    request.publishers = [contactIdsToSubscribe copy];
     [[NIMSDK sharedSDK].subscribeManager subscribeEvent:request
                                              completion:^(NSError * _Nullable error, NSArray * _Nullable failedPublishers) {
 
@@ -895,6 +904,10 @@ RCT_EXPORT_METHOD(subscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)conta
 RCT_EXPORT_METHOD(unsubscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)contactIds
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
+    for (NSString *contactId in contactIds) {
+        [self.subscribedContactIds removeObject:contactId];
+    }
+    
     NIMSubscribeRequest *request = [self generateUserOnlineStatusRequest];
     request.publishers = contactIds;
     [[NIMSDK sharedSDK].subscribeManager unSubscribeEvent:request completion:^(NSError * _Nullable error, NSArray * _Nullable failedPublishers) {
