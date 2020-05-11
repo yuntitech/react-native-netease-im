@@ -896,9 +896,8 @@ RCT_EXPORT_METHOD(subscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)conta
     request.publishers = [contactIdsToSubscribe copy];
     [[NIMSDK sharedSDK].subscribeManager subscribeEvent:request
                                              completion:^(NSError * _Nullable error, NSArray * _Nullable failedPublishers) {
-
+        resolve(contactIdsToSubscribe);
     }];
-    resolve(contactIds);
 }
 
 RCT_EXPORT_METHOD(unsubscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)contactIds
@@ -911,9 +910,8 @@ RCT_EXPORT_METHOD(unsubscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)con
     NIMSubscribeRequest *request = [self generateUserOnlineStatusRequest];
     request.publishers = contactIds;
     [[NIMSDK sharedSDK].subscribeManager unSubscribeEvent:request completion:^(NSError * _Nullable error, NSArray * _Nullable failedPublishers) {
-        
+        resolve(contactIds);
     }];
-    resolve(contactIds);
 }
 
 - (NIMSubscribeRequest *)generateUserOnlineStatusRequest {
