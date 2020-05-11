@@ -20,5 +20,6 @@ import NimRTSKit from './im/RTSKit';
  *observeAttachmentProgress 未读数变化
  *observeOnKick 被踢出下线
  *observeIncomingSession 注册白板来电观察者
+ *observeUserOnlineStatus 用户在线状态
  */
 export {NimUtils, NimFriend, NimSession, NimSystemMsg, NimTeam, NimRTSKit};
