@@ -928,21 +928,24 @@ RCT_EXPORT_METHOD(unsubscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)con
 - (void)onRecvSubscribeEvents:(NSArray<NIMSubscribeEvent *> *)events {
     NSMutableArray<NSString *> *onlineUsers = [NSMutableArray array];
     NSMutableArray<NSString *> *offlineUsers = [NSMutableArray array];
+
     for (NIMSubscribeEvent *event in events) {
         if (event.type == NIMSubscribeSystemEventTypeOnline) {
             NIMSubscribeOnlineInfo *onlineInfo = event.subscribeInfo;
             NSArray<NSNumber *> *types = onlineInfo.senderClientTypes;
             NSString *contactId = event.from;
-            if (types != nil && types.count > 0) {
+            
+            BOOL isOnline = types != nil && types.count > 0;
+            if (isOnline) {
                 [onlineUsers addObject:contactId];
             } else {
                 [offlineUsers addObject:contactId];
             }
         }
     }
-    
+
     if (onlineUsers.count > 0 || offlineUsers.count > 0) {
-        NSDictionary *body = @{ @"onlineUsers": onlineUsers, @"offlineUsers": offlineUsers };
+        NSDictionary *body = @{ @"onlineUsers": onlineUsers.copy, @"offlineUsers": offlineUsers.copy };
         [_bridge.eventDispatcher sendDeviceEventWithName:@"observeUserOnlineStatus" body:body];
     }
 }
