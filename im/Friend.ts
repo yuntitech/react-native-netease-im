@@ -4,7 +4,7 @@
  * @Last Modified by: huangjun
  * @Last Modified time: 2020-04-19 17:26:46
  */
-import { NativeModules } from "react-native";
+import { NativeModules, Platform } from "react-native";
 const { RNNeteaseIm } = NativeModules;
 class Friend {
   /**
@@ -133,7 +133,12 @@ class Friend {
   subscribeUserOnlineStatus = async (
     contactIds: string[]
   ): Promise<string[]> => {
-    return RNNeteaseIm.subscribeUserOnlineStatus(contactIds);
+    if (Platform.OS === 'ios') {
+      return RNNeteaseIm.subscribeUserOnlineStatus(contactIds);
+    } else {
+      // TODO: Android实现之后删除
+      return []
+    }
   };
 
   /**
@@ -144,7 +149,12 @@ class Friend {
   unsubscribeUserOnlineStatus = async (
     contactIds: string[]
   ): Promise<string[]> => {
-    return RNNeteaseIm.unsubscribeUserOnlineStatus(contactIds);
+    if (Platform.OS === 'ios') {
+      return RNNeteaseIm.unsubscribeUserOnlineStatus(contactIds);
+    } else {
+      // TODO: Android实现之后删除
+      return []
+    }
   };
 }
 export default new Friend();

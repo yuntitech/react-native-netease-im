@@ -24,6 +24,8 @@
     NSString *strUserAgent;
 }
 
+@property (nonatomic) NSMutableSet<NSString *> *subscribedContactIds;
+
 @end
 
 @implementation RNNeteaseIm
@@ -35,7 +37,7 @@
 
 - (instancetype)init{
     if (self = [super init]) {
-        
+        _subscribedContactIds = [NSMutableSet set];
     }
     [self initController];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(clickObserveNotification:) name:@"ObservePushNotification" object:nil];
@@ -883,24 +885,33 @@ RCT_EXPORT_METHOD(setupWebViewUserAgent){
 RCT_EXPORT_METHOD(subscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)contactIds
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
+    NSMutableArray *contactIdsToSubscribe = [NSMutableArray arrayWithCapacity:contactIds.count];
+    for (NSString *contactId in contactIds) {
+        if ([self.subscribedContactIds containsObject:contactId] == NO) {
+            [contactIdsToSubscribe addObject:contactId];
+            [self.subscribedContactIds addObject:contactId];
+        }
+    }
     NIMSubscribeRequest *request = [self generateUserOnlineStatusRequest];
-    request.publishers = contactIds;
+    request.publishers = [contactIdsToSubscribe copy];
     [[NIMSDK sharedSDK].subscribeManager subscribeEvent:request
                                              completion:^(NSError * _Nullable error, NSArray * _Nullable failedPublishers) {
-
+        resolve(contactIdsToSubscribe);
     }];
-    resolve(contactIds);
 }
 
 RCT_EXPORT_METHOD(unsubscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)contactIds
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
+    for (NSString *contactId in contactIds) {
+        [self.subscribedContactIds removeObject:contactId];
+    }
+    
     NIMSubscribeRequest *request = [self generateUserOnlineStatusRequest];
     request.publishers = contactIds;
     [[NIMSDK sharedSDK].subscribeManager unSubscribeEvent:request completion:^(NSError * _Nullable error, NSArray * _Nullable failedPublishers) {
-        
+        resolve(contactIds);
     }];
-    resolve(contactIds);
 }
 
 - (NIMSubscribeRequest *)generateUserOnlineStatusRequest {
@@ -916,18 +927,26 @@ RCT_EXPORT_METHOD(unsubscribeUserOnlineStatus:(nonnull NSArray<NSString *> *)con
 
 - (void)onRecvSubscribeEvents:(NSArray<NIMSubscribeEvent *> *)events {
     NSMutableArray<NSString *> *onlineUsers = [NSMutableArray array];
+    NSMutableArray<NSString *> *offlineUsers = [NSMutableArray array];
+
     for (NIMSubscribeEvent *event in events) {
         if (event.type == NIMSubscribeSystemEventTypeOnline) {
             NIMSubscribeOnlineInfo *onlineInfo = event.subscribeInfo;
             NSArray<NSNumber *> *types = onlineInfo.senderClientTypes;
-            if (types != nil && types.count > 0) {
-                [onlineUsers addObject:event.from];
+            NSString *contactId = event.from;
+            
+            BOOL isOnline = types != nil && types.count > 0;
+            if (isOnline) {
+                [onlineUsers addObject:contactId];
+            } else {
+                [offlineUsers addObject:contactId];
             }
         }
     }
-    
-    if (onlineUsers.count > 0) {
-        [_bridge.eventDispatcher sendDeviceEventWithName:@"observeUserOnlineStatus" body:@{@"onlineUsers":onlineUsers}];
+
+    if (onlineUsers.count > 0 || offlineUsers.count > 0) {
+        NSDictionary *body = @{ @"onlineUsers": onlineUsers.copy, @"offlineUsers": offlineUsers.copy };
+        [_bridge.eventDispatcher sendDeviceEventWithName:@"observeUserOnlineStatus" body:body];
     }
 }
 
