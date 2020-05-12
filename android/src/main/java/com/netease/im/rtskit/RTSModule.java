@@ -188,6 +188,12 @@ public class RTSModule {
                 case ActionStep.IMAGE_ROTATE:
                     getTransactionManager(context).sendImageRotate(type, getInt(params, "imgRotateIndex"));
                     break;
+                case ActionStep.PPT_PREV_FRAME:
+                case ActionStep.PPT_NEXT_FRAME:
+                    getTransactionManager(context).sendToRemote(type,
+                            String.valueOf(getInt(params, "pptIndex")),
+                            String.valueOf(getInt(params, "pptFrame")));
+                    break;
                 default:
                     getTransactionManager(context).sendActionStep(type);
                     break;

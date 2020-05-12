@@ -21,26 +21,6 @@ public class Transaction implements Serializable {
     private String dataSecond;
     private String dataThird;
     private String dataFour;
-    private static List<Byte> COMMAND_OPERATE = Arrays.asList(
-            ActionStep.ADD_BOARD,
-            ActionStep.ADD_IMAGE,
-            ActionStep.ADD_PPT,
-            ActionStep.ADD_VIDEO,
-            ActionStep.CHANGE_BOARD,
-            ActionStep.DELETE_BOARD,
-            ActionStep.CHANGE_PAINT_COLOR,
-            ActionStep.PPT_START_PLAY,
-            ActionStep.PPT_END_PLAY,
-            ActionStep.PPT_NEXT_FRAME,
-            ActionStep.PPT_PREV_FRAME,
-            ActionStep.PPT_CHANGE_PAGE,
-            ActionStep.VIDEO_PLAY,
-            ActionStep.VIDEO_PAUSE,
-            ActionStep.VIDEO_SEEK,
-            ActionStep.START_LESSON,
-            ActionStep.MODIFY_PRICE,
-            ActionStep.END_LESSON
-    );
     private static List<Byte> PAINT_OPERATE = Arrays.asList(
             ActionStep.START,
             ActionStep.MOVE,
@@ -113,6 +93,8 @@ public class Transaction implements Serializable {
             case ActionStep.ADD_IMAGE:
             case ActionStep.ADD_PPT:
             case ActionStep.START_LESSON:
+            case ActionStep.PPT_PREV_FRAME:
+            case ActionStep.PPT_NEXT_FRAME:
                 return String.format(Locale.CHINA, "%d:%s,%s", t.step, t.dataFirst, t.dataSecond);
             case ActionStep.ADD_VIDEO:
                 return String.format(Locale.CHINA, "%d:%s,%s,%s,%s", t.step, t.dataFirst,
@@ -164,6 +146,9 @@ public class Transaction implements Serializable {
                 case ActionStep.MOVE:
                 case ActionStep.END:
                     return new Transaction(p1, Float.valueOf(dataInfo[0]), Float.valueOf(dataInfo[1]));
+                case ActionStep.PPT_PREV_FRAME:
+                case ActionStep.PPT_NEXT_FRAME:
+                    return new Transaction(p1, dataInfo[0], dataInfo[1], String.valueOf(currentBoardId));
                 default:
                     return new Transaction(p1);
             }
@@ -192,9 +177,6 @@ public class Transaction implements Serializable {
         return PAINT_OPERATE.contains(step);
     }
 
-    boolean isCommand() {
-        return COMMAND_OPERATE.contains(step);
-    }
 
     boolean isRevoke() {
         return step == ActionStep.REVOKE;

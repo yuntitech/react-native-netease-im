@@ -122,6 +122,10 @@ public class TransactionManager {
         sendToRemote(new Transaction(step, String.valueOf(imgRotateIndex)));
     }
 
+    public void sendToRemote(byte step, String dataFirst, String dataSecond) {
+        sendToRemote(new Transaction(step, dataFirst, dataSecond));
+    }
+
 
     private Runnable timerTask = new Runnable() {
         @Override

@@ -685,6 +685,12 @@ public class DoodleView extends View implements TransactionObserver {
                 event.putInt("imgRotateIndex", Integer.valueOf(t.getDataFirst()));
                 event.putInt("id", Integer.valueOf(t.getDataSecond()));
                 break;
+            case ActionStep.PPT_PREV_FRAME:
+            case ActionStep.PPT_NEXT_FRAME:
+                event.putInt("pptIndex", Integer.valueOf(t.getDataFirst()));
+                event.putInt("pptFrame", Integer.valueOf(t.getDataSecond()));
+                event.putInt("id", Integer.valueOf(t.getDataThird()));
+                break;
         }
         mEventEmitter.receiveEvent(getParentId(), Events.EVENT_RECEIVE_RTS_DATA.toString(), event);
     }
