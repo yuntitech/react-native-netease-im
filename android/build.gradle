@@ -53,4 +53,5 @@ dependencies {
     // 白板
     implementation 'com.netease.nimlib:rts:7.5.0'
     implementation 'com.netease.nimlib:nrtc:7.5.0'
+    implementation project(':react-native-ug-ble')
 }

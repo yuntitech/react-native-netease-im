@@ -1,5 +1,6 @@
 package com.netease.im.rtskit.doodle;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
@@ -93,10 +95,10 @@ public class DoodleView extends View implements TransactionObserver {
     private int remotePaintColor = 0xFF000000;
     private byte loginType = 1; //默认普通用户
 
-    public DoodleView(ThemedReactContext context) {
+    public DoodleView(ThemedReactContext context, PenView penView) {
         super(context);
+        init(context, penView);
         mEventEmitter = context.getJSModule(RCTEventEmitter.class);
-        init();
     }
 
     @Override
@@ -109,7 +111,7 @@ public class DoodleView extends View implements TransactionObserver {
         super.onDraw(canvas);
     }
 
-    private void init() {
+    private void init(Context context, PenView penView) {
         this.setFocusable(true);
         paintChannelMap = new ArrayMap<>();
         // 画笔
@@ -117,13 +119,13 @@ public class DoodleView extends View implements TransactionObserver {
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
         mPaint.setColor(0xFF0091EA);
-        mPaint.setStrokeWidth(Util.dp2px(2, getContext()));
+        mPaint.setStrokeWidth(Util.dp2px(2, context));
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mEraserMode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
         //
-        mGestureDetector = new GestureDetector(getContext(), new GestureDetector.GestureDetectorDelegate() {
+        mGestureDetector = new GestureDetector((ReactContext) context, new GestureDetector.GestureDetectorDelegate() {
             @Override
             public void onActionStart(float touchX, float touchY) {
                 if (mEnableEraser) {
@@ -160,7 +162,7 @@ public class DoodleView extends View implements TransactionObserver {
             public void onActionDoubleClick() {
                 emitDoubleClick();
             }
-        });
+        }, penView);
         this.paintChannel = getPaintChannel(KEY_PAINT + boardId);
         // 橡皮檫路径
         this.mEraserPath = new Path();
@@ -188,6 +190,8 @@ public class DoodleView extends View implements TransactionObserver {
         float density = getResources().getDisplayMetrics().density;
         int width = (int) (widthDp * density);
         int height = (int) (heightDp * density);
+        mGestureDetector.setCanvasWidth(width);
+        mGestureDetector.setCanvasHeight(height);
         // 初始化画板
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
@@ -235,10 +239,6 @@ public class DoodleView extends View implements TransactionObserver {
                 transactionManager.changeBoard(boardId);
             }
         }
-    }
-
-    public void setBoardType(byte boardType) {
-        mGestureDetector.setBoardType(boardType);
     }
 
     /**
@@ -328,7 +328,6 @@ public class DoodleView extends View implements TransactionObserver {
 
     public void changeBoardPage(int boardId, byte boardType) {
         this.boardId = boardId;
-        mGestureDetector.setBoardType(boardType);
         this.paintChannel = this.getPaintChannel(KEY_PAINT + boardId);
         this.playbackChannel = this.getPaintChannel(KEY_PLAYBACK + boardId);
         invalidate();

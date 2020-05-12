@@ -2,12 +2,14 @@ package com.netease.im.rtskit.view;
 
 import android.graphics.Color;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.netease.im.rtskit.doodle.DoodleView;
+import com.netease.im.rtskit.doodle.PenView;
 import com.netease.im.rtskit.doodle.constant.ActionTypeEnum;
 
 public class DoodleContainer extends FrameLayout {
@@ -43,11 +45,13 @@ public class DoodleContainer extends FrameLayout {
     }
 
     private void addDoodleView(ThemedReactContext context) {
-        mDoodleView = new DoodleView(context);
+        PenView penView = new PenView(context);
+        mDoodleView = new DoodleView(context, penView);
         LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER;
         mDoodleView.setLayoutParams(params);
         addView(mDoodleView);
+        addView(penView, new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
     }
 
 
